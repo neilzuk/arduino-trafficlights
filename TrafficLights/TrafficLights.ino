@@ -3,6 +3,10 @@ Name:		TrafficLights.ino
 Created:	2/6/2016 4:43:44 PM
 Author:	Neil
 */
+// settings
+unsigned long waitTime = 5000;
+bool buttonPressed = false;
+bool firstRun = true;
 // Road
 int red = A0;
 int amber = A1;
@@ -10,10 +14,11 @@ int green = A2;
 // Ped
 int pedRed = A3;
 int pedGreen = A4;
+int pedWaitlight = A5;
 int pedButton = 2;
 
-bool buttonPressed = false;
-bool firstRun = true;
+
+unsigned long delayedTime = 0;
 
 // the setup function runs once when you press reset or power the board
 void setup() {
@@ -24,6 +29,7 @@ void setup() {
 	digitalWrite(pedButton, HIGH);
 	pinMode(pedRed, OUTPUT);
 	pinMode(pedGreen, OUTPUT);
+	pinMode(pedWaitlight, OUTPUT);
 	on(red);
 }
 
@@ -36,17 +42,21 @@ void loop() {
 	}
 
 	bool pedWaiting = digitalRead(pedButton) == LOW;
-	if (pedWaiting)
+	if (pedWaiting && buttonPressed == false) {
 		buttonPressed = true;
+		delayedTime = millis() + waitTime;
+		on(pedWaitlight);
+	}
 
-	if (buttonPressed) {
+	if (buttonPressed && millis() >= delayedTime) {
 		stopTraffic();
 		pedAllowed();
 		delay(5000);
 		pedDisallowed();
 		startTraffic();
-		// reset button
+		// reset button & clock;
 		buttonPressed = false;
+		delayedTime = 0;
 	}
 }
 
@@ -69,6 +79,7 @@ void stopTraffic() {
 
 void pedAllowed() {
 	on(pedGreen);
+	off(pedWaitlight);
 	off(pedRed);
 }
 
