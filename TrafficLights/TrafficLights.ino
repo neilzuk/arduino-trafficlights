@@ -4,7 +4,8 @@ Created:	2/6/2016 4:43:44 PM
 Author:	Neil
 */
 // settings
-unsigned long waitTime = 5000;
+unsigned long waitTime = 5000; // Time the pedestrian has to wait after pressing button.
+unsigned long delayedTime = 0; // Used to store the time the lights should stop the traffic for the pedestrian.
 bool buttonPressed = false;
 bool firstRun = true;
 // Road
@@ -17,16 +18,13 @@ int pedGreen = A4;
 int pedWaitlight = A5;
 int pedButton = 2;
 
-
-unsigned long delayedTime = 0;
-
 // the setup function runs once when you press reset or power the board
 void setup() {
 	pinMode(red, OUTPUT);
 	pinMode(amber, OUTPUT);
 	pinMode(green, OUTPUT);
 	pinMode(pedButton, INPUT);
-	digitalWrite(pedButton, HIGH);
+	digitalWrite(pedButton, HIGH); // Button signal set high so we can detect when button pressed (low).
 	pinMode(pedRed, OUTPUT);
 	pinMode(pedGreen, OUTPUT);
 	pinMode(pedWaitlight, OUTPUT);
@@ -62,11 +60,11 @@ void loop() {
 
 void startTraffic() {
 	delay(2000);
-	digitalWrite(amber, HIGH);
+	on(amber);
 	delay(2000);
-	digitalWrite(red, LOW);
-	digitalWrite(amber, LOW);
-	digitalWrite(green, HIGH);
+	off(red);
+	off(amber);
+	on(green);
 }
 
 void stopTraffic() {
