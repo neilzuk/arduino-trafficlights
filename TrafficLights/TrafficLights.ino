@@ -12,6 +12,8 @@ int pedRed = A3;
 int pedGreen = A4;
 int pedButton = 2;
 
+bool buttonPressed = false;
+bool firstRun = true;
 
 // the setup function runs once when you press reset or power the board
 void setup() {
@@ -22,24 +24,63 @@ void setup() {
 	digitalWrite(pedButton, HIGH);
 	pinMode(pedRed, OUTPUT);
 	pinMode(pedGreen, OUTPUT);
+	on(red);
 }
 
 // the loop function runs over and over again until power down or reset
 void loop() {
-	digitalWrite(red, HIGH);
-	digitalWrite(pedRed, HIGH);
-
-	bool buttonPressed = digitalRead(pedButton);
-	Serial.println(buttonPressed);
-	if (buttonPressed == LOW) {
-		digitalWrite(red, LOW);
-		digitalWrite(green, HIGH);
-
-		digitalWrite(pedRed, LOW);
-		digitalWrite(pedGreen, HIGH);
-		delay(2000);
-		digitalWrite(green, LOW);
-		digitalWrite(pedGreen, LOW);
-
+	if (firstRun) {
+		pedDisallowed();
+		startTraffic();
+		firstRun = false;
 	}
+
+	bool pedWaiting = digitalRead(pedButton) == LOW;
+	if (pedWaiting)
+		buttonPressed = true;
+
+	if (buttonPressed) {
+		stopTraffic();
+		pedAllowed();
+		delay(5000);
+		pedDisallowed();
+		startTraffic();
+		// reset button
+		buttonPressed = false;
+	}
+}
+
+void startTraffic() {
+	delay(2000);
+	digitalWrite(amber, HIGH);
+	delay(2000);
+	digitalWrite(red, LOW);
+	digitalWrite(amber, LOW);
+	digitalWrite(green, HIGH);
+}
+
+void stopTraffic() {
+	off(green);
+	on(amber);
+	delay(2000);
+	on(red);
+	off(amber);
+}
+
+void pedAllowed() {
+	on(pedGreen);
+	off(pedRed);
+}
+
+void pedDisallowed() {
+	on(pedRed);
+	off(pedGreen);
+}
+
+void on(int light) {
+	digitalWrite(light, HIGH);
+}
+
+void off(int light) {
+	digitalWrite(light, LOW);
 }
